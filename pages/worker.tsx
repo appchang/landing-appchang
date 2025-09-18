@@ -1,16 +1,21 @@
 import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 
 export default function WorkerForm() {
   const [name, setName] = useState("");
   const [skill, setSkill] = useState("");
   const [location, setLocation] = useState("");
+  const router = useRouter();
+  const profile = router.query;
+
   interface Worker {
     name: string;
     skill: string;
     location: string;
     status?: string;
+    userId: string;
   }
-  
+
   const [workers, setWorkers] = useState<Worker[]>([]);
 
   // โหลดรายชื่อจาก DB
@@ -22,7 +27,7 @@ export default function WorkerForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newWorker = { name, skill, location };
+    const newWorker = { name, skill, location, userId: profile.userId };
 
     await fetch("/api/workers", {
       method: "POST",
@@ -41,9 +46,12 @@ export default function WorkerForm() {
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
-      <h1 className="text-2xl font-bold text-blue-600 mb-4">สมัครแรงงานz</h1>
+      <h1 className="text-2xl font-bold text-blue-600 mb-4">สมัครแรงงานz.1</h1>
 
-      <form onSubmit={handleSubmit} className="bg-white p-4 rounded shadow mb-6 space-y-3">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-4 rounded shadow mb-6 space-y-3"
+      >
         <input
           type="text"
           placeholder="ชื่อ-นามสกุล"
@@ -68,7 +76,10 @@ export default function WorkerForm() {
           onChange={(e) => setLocation(e.target.value)}
           className="w-full border rounded px-3 py-2"
         />
-        <button type="submit" className="w-full bg-blue-600 text-white py-2 rounded">
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white py-2 rounded"
+        >
           บันทึกข้อมูล
         </button>
       </form>
@@ -76,7 +87,10 @@ export default function WorkerForm() {
       <h2 className="text-xl font-semibold mb-3">รายชื่อแรงงาน</h2>
       <div className="space-y-2">
         {workers.map((w, i) => (
-          <div key={i} className="flex justify-between bg-white p-3 rounded shadow">
+          <div
+            key={i}
+            className="flex justify-between bg-white p-3 rounded shadow"
+          >
             <div>
               <p className="font-semibold">{w.name}</p>
               <p className="text-gray-600 text-sm">

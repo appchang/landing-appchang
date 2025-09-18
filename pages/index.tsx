@@ -4,7 +4,11 @@ import Link from "next/link";
 import Image from "next/image";
 
 export default function Home() {
-  const [profile, setProfile] = useState<{ name: string; picture: string } | null>(null);
+  const [profile, setProfile] = useState<{
+    name: string;
+    picture: string;
+    userId: string;
+  } | null>(null);
 
   useEffect(() => {
     const initLiff = async () => {
@@ -12,9 +16,11 @@ export default function Home() {
         await liff.init({ liffId: "2008132085-Ex4bOk3P" });
         if (liff.isLoggedIn()) {
           const userProfile = await liff.getProfile();
+          console.log("userProfile", userProfile);
           setProfile({
             name: userProfile.displayName,
             picture: userProfile.pictureUrl || "",
+            userId: userProfile.userId || "",
           });
         } else {
           liff.login();
@@ -32,19 +38,24 @@ export default function Home() {
 
       {profile && (
         <div className="text-center mb-6">
-          <Image 
-            src={profile.picture} 
-            alt="profile" 
-            width={80} 
-            height={80} 
-            className="rounded-full mx-auto mb-2" 
+          <Image
+            src={profile.picture}
+            alt="profile"
+            width={80}
+            height={80}
+            className="rounded-full mx-auto mb-2"
           />
           <p className="text-lg font-semibold">สวัสดี, {profile.name}</p>
         </div>
       )}
 
       <div className="space-y-4 w-full max-w-sm">
-        <Link href="/worker">
+        <Link
+          href={{
+            pathname: "/worker",
+            query: profile,
+          }}
+        >
           <button className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
             สมัครแรงงาน
           </button>
