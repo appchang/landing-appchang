@@ -4,6 +4,7 @@ import liff from "@line/liff";
 import Link from "next/link";
 import Image from "next/image";
 import { Star } from "lucide-react";
+import { useRouter } from "next/router";
 
 // Simple StarIcon component using SVG
 const StarIcon = ({
@@ -25,6 +26,7 @@ const StarIcon = ({
 );
 
 export default function Home() {
+  const router = useRouter();
   // const [profile, setProfile] = useState<{
   //   name: string;
   //   picture: string;
@@ -187,22 +189,58 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="space-y-4 w-full max-w-sm">
-          <Link
-            href={{
-              pathname: "/worker",
-              query: profile,
-            }}
-          >
-            <button className="w-full py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-              สมัครแรงงาน
-            </button>
-          </Link>
-          <Link href="/dashboard">
-            <button className="w-full py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700">
-              Dashboard ผู้ว่าจ้าง
-            </button>
-          </Link>
+        <div
+          style={{
+            width: "100%",
+            position: "fixed",
+            bottom: "0",
+            padding: "10px",
+            display: "flex",
+            justifyContent: "center",
+            marginTop: "20px",
+            gap: "10px",
+            background: "white",
+          }}
+        >
+          <div style={{ flex: 1 }}>
+            <Link
+              href={{
+                pathname: "/worker",
+                query: profile,
+              }}
+            >
+              <button
+                style={{
+                  width: "100%",
+                  background:
+                    router.pathname === "/worker" ? "#2563eb" : "#e5e7eb", // สีน้ำเงินถ้า active, เทาถ้าไม่ active
+                  color: router.pathname === "/worker" ? "#fff" : "#333",
+                  fontWeight: "bold",
+                  borderRadius: "8px",
+                  padding: "10px 0",
+                }}
+              >
+                สมัครแรงงาน
+              </button>
+            </Link>
+          </div>
+
+          <div style={{ flex: 1 }}>
+            <Link href="/">
+              <button
+                style={{
+                  width: "100%",
+                  background: router.pathname === "/" ? "#2563eb" : "#e5e7eb", // สีน้ำเงินถ้า active, เทาถ้าไม่ active
+                  color: router.pathname === "/" ? "#fff" : "#333",
+                  fontWeight: "bold",
+                  borderRadius: "8px",
+                  padding: "10px 0",
+                }}
+              >
+                Dashboard ผู้ว่าจ้าง
+              </button>
+            </Link>
+          </div>
         </div>
       </div>
     </div>
