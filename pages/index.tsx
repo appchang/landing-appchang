@@ -9,7 +9,7 @@ export default function Home() {
   useEffect(() => {
     const initLiff = async () => {
       try {
-        await liff.init({ liffId: "2008132085-dVnGqvbp" });
+        await liff.init({ liffId: "2008132085-Ex4bOk3P" });
         if (liff.isLoggedIn()) {
           const userProfile = await liff.getProfile();
           setProfile({
