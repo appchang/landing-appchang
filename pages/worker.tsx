@@ -4,7 +4,14 @@ export default function WorkerForm() {
   const [name, setName] = useState("");
   const [skill, setSkill] = useState("");
   const [location, setLocation] = useState("");
-  const [workers, setWorkers] = useState<any[]>([]);
+  interface Worker {
+    name: string;
+    skill: string;
+    location: string;
+    status?: string;
+  }
+  
+  const [workers, setWorkers] = useState<Worker[]>([]);
 
   // โหลดรายชื่อจาก DB
   useEffect(() => {

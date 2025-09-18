@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import liff from "@line/liff";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Home() {
   const [profile, setProfile] = useState<{ name: string; picture: string } | null>(null);
@@ -31,7 +32,13 @@ export default function Home() {
 
       {profile && (
         <div className="text-center mb-6">
-          <img src={profile.picture} alt="profile" className="w-20 h-20 rounded-full mx-auto mb-2" />
+          <Image 
+            src={profile.picture} 
+            alt="profile" 
+            width={80} 
+            height={80} 
+            className="rounded-full mx-auto mb-2" 
+          />
           <p className="text-lg font-semibold">สวัสดี, {profile.name}</p>
         </div>
       )}

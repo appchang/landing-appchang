@@ -11,8 +11,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const worker = new Worker({ name, skill, location });
       await worker.save();
       return res.status(201).json(worker);
-    } catch (err: any) {
-      return res.status(400).json({ error: err.message });
+    } catch (err) {
+      const error = err as Error;
+      return res.status(400).json({ error: error.message });
     }
   }
 
@@ -20,8 +21,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     try {
       const workers = await Worker.find({});
       return res.status(200).json(workers);
-    } catch (err: any) {
-      return res.status(500).json({ error: err.message });
+    } catch (err) {
+      const error = err as Error;
+      return res.status(500).json({ error: error.message });
     }
   }
 
