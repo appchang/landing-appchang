@@ -1,0 +1,32 @@
+.home-container {
+  min-height: 100vh;
+  background: #f0f4f8;
+  padding: 2rem;
+  border-radius: 1rem;
+}
+
+.home-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.home-title {
+    font-size: 1rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    color: #111827;
+}
+
+.home-title img {
+    border-radius: 50%;
+    width: 3rem;
+    height: 3rem;
+    margin-right: 1rem;
+    object-fit: cover;
+}

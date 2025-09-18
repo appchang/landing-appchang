@@ -2,13 +2,16 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { connectDB } from "../../lib/mongodb";
 import Worker from "../../models/Workers";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   await connectDB();
 
   if (req.method === "POST") {
     try {
-      const { name, skill, location } = req.body;
-      const worker = new Worker({ name, skill, location });
+      const { name, skill, location, userId, picture } = req.body;
+      const worker = new Worker({ name, skill, location, userId, picture });
       await worker.save();
       return res.status(201).json(worker);
     } catch (err) {

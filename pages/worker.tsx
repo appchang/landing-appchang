@@ -27,7 +27,13 @@ export default function WorkerForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newWorker = { name, skill, location, userId: profile.userId };
+    const newWorker = {
+      name,
+      skill,
+      location,
+      userId: profile.userId,
+      picture: profile.picture,
+    };
 
     await fetch("/api/workers", {
       method: "POST",
@@ -84,7 +90,7 @@ export default function WorkerForm() {
         </button>
       </form>
 
-      <h2 className="text-xl font-semibold mb-3">รายชื่อแรงงาน</h2>
+      {/* <h2 className="text-xl font-semibold mb-3">รายชื่อแรงงาน</h2>
       <div className="space-y-2">
         {workers.map((w, i) => (
           <div
@@ -100,7 +106,7 @@ export default function WorkerForm() {
             <span className="text-green-600 font-semibold">{w.status}</span>
           </div>
         ))}
-      </div>
+      </div> */}
     </div>
   );
 }
