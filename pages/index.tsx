@@ -33,6 +33,9 @@ export default function Home() {
   //   userId: string;
   // } | null>(null);
 
+  const [activeTab, setActiveTab] = useState<"dashboard" | "worker">(
+    "dashboard"
+  );
   const [profile, setProfile] = useState<{
     name: string;
     picture: string;
@@ -53,6 +56,37 @@ export default function Home() {
       picture: string;
     }[]
   >([]);
+
+  // === FORM STATE ===
+  const [name, setName] = useState("");
+  const [skill, setSkill] = useState("");
+  const [location, setLocation] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const newWorker = {
+      name,
+      skill,
+      location,
+      userId: profile.userId,
+      picture: profile.picture,
+    };
+
+    await fetch("/api/workers", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newWorker),
+    });
+
+    setName("");
+    setSkill("");
+    setLocation("");
+
+    // refresh list
+    const updated = await fetch("/api/workers").then((res) => res.json());
+    setWorkers(updated);
+    setActiveTab("dashboard");
+  };
 
   // useEffect(() => {
   //   const initLiff = async () => {
@@ -106,88 +140,292 @@ export default function Home() {
           </div>
         )} */}
 
-        <div style={{ width: "60%" }}>
-          <h2 style={{ textAlign: "left" }}>
-            รายชื่อ
-            <span style={{ fontWeight: "bold", marginLeft: "8px" }}>
-              ({workers.length})
-            </span>
-          </h2>
-          <div style={{ width: "100%" }}>
-            {workers.map((w, i) => (
-              <div
-                key={i}
-                style={{
-                  background: "white",
-                  padding: "10px",
-                  borderRadius: "8px",
-                  marginBottom: "8px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  gap: "10px",
-                  cursor: "pointer",
-                }}
-                onClick={() => {
-                  console.log("คลิกแรงงาน:", w);
-                }}
-              >
+        {activeTab === "dashboard" && (
+          <div style={{ width: "60%" }}>
+            <h2 style={{ textAlign: "left" }}>
+              รายชื่อ
+              <span style={{ fontWeight: "bold", marginLeft: "8px" }}>
+                ({workers.length})
+              </span>
+            </h2>
+            <div style={{ width: "100%" }}>
+              {workers.map((w, i) => (
                 <div
+                  key={i}
                   style={{
+                    background: "white",
+                    padding: "10px",
+                    borderRadius: "8px",
+                    marginBottom: "8px",
                     display: "flex",
                     alignItems: "center",
+                    justifyContent: "space-between",
                     gap: "10px",
-                    textAlign: "left",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => {
+                    console.log("คลิกแรงงาน:", w);
                   }}
                 >
-                  <Image
-                    src={w.picture}
-                    alt="profile"
-                    width={80}
-                    height={80}
-                    className="rounded-full mx-auto mb-2"
-                    style={{ borderRadius: "50%" }}
-                  />
-                  <div>
-                    <p className="font-semibold">{w.name}</p>
-                    <div className="flex items-center mb-1">
-                      <div className="flex">
-                        {[...Array(5)].map((_, i) => (
-                          <Star color="#facc15" key={i} />
-                        ))}
-                        <span className="text-xs text-gray-500 ml-1">(2)</span>
-                      </div>
-                    </div>
-
-                    <p className="text-gray-600 text-sm">
-                      {w.skill} • {w.location}
-                    </p>
-                  </div>
-                </div>
-
-                <div style={{ marginRight: "8px" }}>
                   <div
                     style={{
-                      padding: "0px 8px",
-                      background:
-                        w.status === "Available" ? "#d1fae5" : "#fee2e2",
-                      borderRadius: "8px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      textAlign: "left",
                     }}
                   >
-                    <p
+                    <Image
+                      src={w.picture}
+                      alt="profile"
+                      width={80}
+                      height={80}
+                      className="rounded-full mx-auto mb-2"
+                      style={{ borderRadius: "50%" }}
+                    />
+                    <div>
+                      <p className="font-semibold">{w.name}</p>
+                      <div className="flex items-center mb-1">
+                        <div className="flex">
+                          {[...Array(5)].map((_, i) => (
+                            <Star color="#facc15" key={i} />
+                          ))}
+                          <span className="text-xs text-gray-500 ml-1">
+                            (2)
+                          </span>
+                        </div>
+                      </div>
+
+                      <p className="text-gray-600 text-sm">
+                        {w.skill} • {w.location}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div style={{ marginRight: "8px" }}>
+                    <div
                       style={{
-                        color: w.status === "Available" ? "#166534" : "#b91c1c",
-                        fontWeight: "bold",
+                        padding: "0px 8px",
+                        background:
+                          w.status === "Available" ? "#d1fae5" : "#fee2e2",
+                        borderRadius: "8px",
                       }}
                     >
-                      {w.status}
-                    </p>
+                      <p
+                        style={{
+                          color:
+                            w.status === "Available" ? "#166534" : "#b91c1c",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {w.status}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
+
+        {activeTab === "worker" && (
+          <div
+            style={{
+              width: "100%",
+              maxWidth: "420px",
+              margin: "32px auto",
+              background: "#fff",
+              borderRadius: "16px",
+              boxShadow: "0 2px 12px #e5e7eb",
+              padding: "32px 24px",
+              textAlign: "left",
+            }}
+          >
+            <h2
+              style={{
+                fontSize: "1.5rem",
+                fontWeight: "bold",
+                marginBottom: "24px",
+              }}
+            >
+              ลงทะเบียนแรงงาน
+            </h2>
+            <form onSubmit={handleSubmit}>
+              {/* ชื่อ */}
+              <label
+                style={{
+                  fontWeight: "bold",
+                  marginBottom: "8px",
+                  display: "block",
+                }}
+              >
+                ชื่อ-นามสกุล
+              </label>
+
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  background: "#f9fafb",
+                  border: "1px solid #d1d5db",
+                  borderRadius: "10px",
+                  padding: "0 12px",
+                  marginBottom: "18px",
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: "1.3rem",
+                    color: "#94a3b8",
+                    marginRight: "8px",
+                  }}
+                >
+                  👤
+                </span>
+                <input
+                  type="text"
+                  placeholder="ชื่อ-นามสกุล"
+                  style={{
+                    border: "none",
+                    background: "transparent",
+                    padding: "14px 0",
+                    width: "100%",
+                    fontSize: "1rem",
+                    outline: "none",
+                  }}
+                  onChange={(e) => setName(e.target.value)}
+                />
+              </div>
+
+              {/* ทักษะงาน */}
+              <label
+                style={{
+                  fontWeight: "bold",
+                  marginBottom: "8px",
+                  display: "block",
+                }}
+              >
+                ทักษะงาน
+              </label>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  background: "#f9fafb",
+                  border: "1px solid #d1d5db",
+                  borderRadius: "10px",
+                  padding: "0 12px",
+                  marginBottom: "18px",
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: "1.3rem",
+                    color: "#94a3b8",
+                    marginRight: "8px",
+                  }}
+                >
+                  🧰
+                </span>
+                <select
+                  style={{
+                    border: "none",
+                    background: "transparent",
+                    padding: "14px 0",
+                    width: "100%",
+                    fontSize: "1rem",
+                    outline: "none",
+                    color: "#64748b",
+                  }}
+                  defaultValue=""
+                  onChange={(e) => setSkill(e.target.value)}
+                >
+                  <option value="" disabled>
+                    เลือกทักษะงาน
+                  </option>
+                  <option value="ช่างปูน">ช่างปูน</option>
+                  <option value="ช่างไฟฟ้า">ช่างไฟฟ้า</option>
+                  <option value="ช่างเหล็ก">ช่างเหล็ก</option>
+                  {/* เพิ่มทักษะอื่นๆ */}
+                </select>
+                <span
+                  style={{
+                    fontSize: "1.1rem",
+                    color: "#94a3b8",
+                    marginLeft: "8px",
+                  }}
+                >
+                  ▼
+                </span>
+              </div>
+
+              {/* พื้นที่ทำงาน */}
+              <label
+                style={{
+                  fontWeight: "bold",
+                  marginBottom: "8px",
+                  display: "block",
+                }}
+              >
+                พื้นที่ทำงาน
+              </label>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  background: "#f9fafb",
+                  border: "1px solid #d1d5db",
+                  borderRadius: "10px",
+                  padding: "0 12px",
+                  marginBottom: "28px",
+                }}
+              >
+                <span
+                  style={{
+                    fontSize: "1.3rem",
+                    color: "#94a3b8",
+                    marginRight: "8px",
+                  }}
+                >
+                  📍
+                </span>
+                <input
+                  type="text"
+                  placeholder="จังหวัด/พื้นที่ที่ทำงาน"
+                  style={{
+                    border: "none",
+                    background: "transparent",
+                    padding: "14px 0",
+                    width: "100%",
+                    fontSize: "1rem",
+                    outline: "none",
+                    color: "#64748b",
+                  }}
+                  onChange={(e) => setLocation(e.target.value)}
+                />
+              </div>
+
+              {/* ปุ่มบันทึก */}
+              <button
+                type="submit"
+                style={{
+                  width: "100%",
+                  background: "linear-gradient(90deg,#2563eb,#1e40af)",
+                  color: "#fff",
+                  fontWeight: "bold",
+                  borderRadius: "10px",
+                  padding: "14px 0",
+                  fontSize: "1.1rem",
+                  border: "none",
+                  cursor: "pointer",
+                  marginTop: "8px",
+                }}
+              >
+                บันทึกข้อมูล
+              </button>
+            </form>
+          </div>
+        )}
 
         <div
           style={{
@@ -203,43 +441,37 @@ export default function Home() {
           }}
         >
           <div style={{ flex: 1 }}>
-            <Link
-              href={{
-                pathname: "/worker",
-                query: profile,
+            <button
+              style={{
+                width: "100%",
+                background: activeTab === "worker" ? "#2563eb" : "#e5e7eb", // สีน้ำเงินถ้า active, เทาถ้าไม่ active
+                color: activeTab === "worker" ? "#fff" : "#333",
+                fontWeight: "bold",
+                borderRadius: "8px",
+                padding: "10px 0",
+                cursor: "pointer",
               }}
+              onClick={() => setActiveTab("worker")}
             >
-              <button
-                style={{
-                  width: "100%",
-                  background:
-                    router.pathname === "/worker" ? "#2563eb" : "#e5e7eb", // สีน้ำเงินถ้า active, เทาถ้าไม่ active
-                  color: router.pathname === "/worker" ? "#fff" : "#333",
-                  fontWeight: "bold",
-                  borderRadius: "8px",
-                  padding: "10px 0",
-                }}
-              >
-                สมัครแรงงาน
-              </button>
-            </Link>
+              สมัครแรงงาน
+            </button>
           </div>
 
           <div style={{ flex: 1 }}>
-            <Link href="/">
-              <button
-                style={{
-                  width: "100%",
-                  background: router.pathname === "/" ? "#2563eb" : "#e5e7eb", // สีน้ำเงินถ้า active, เทาถ้าไม่ active
-                  color: router.pathname === "/" ? "#fff" : "#333",
-                  fontWeight: "bold",
-                  borderRadius: "8px",
-                  padding: "10px 0",
-                }}
-              >
-                Dashboard ผู้ว่าจ้าง
-              </button>
-            </Link>
+            <button
+              style={{
+                width: "100%",
+                background: activeTab === "dashboard" ? "#2563eb" : "#e5e7eb", // สีน้ำเงินถ้า active, เทาถ้าไม่ active
+                color: activeTab === "dashboard" ? "#fff" : "#333",
+                fontWeight: "bold",
+                borderRadius: "8px",
+                padding: "10px 0",
+                cursor: "pointer",
+              }}
+              onClick={() => setActiveTab("dashboard")}
+            >
+              Dashboard ผู้ว่าจ้าง
+            </button>
           </div>
         </div>
       </div>

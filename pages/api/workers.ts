@@ -22,7 +22,7 @@ export default async function handler(
 
   if (req.method === "GET") {
     try {
-      const workers = await Worker.find({});
+      const workers = await Worker.find({}).sort({ updatedAt: -1 });
       return res.status(200).json(workers);
     } catch (err) {
       const error = err as Error;
