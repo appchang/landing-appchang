@@ -28,7 +28,11 @@ export default async function handler(
       }
     );
     res.status(200).json({ success: true });
-  } catch (err: Error | any) {
-    res.status(500).json({ error: err.message });
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      res.status(500).json({ error: err.message });
+    } else {
+      res.status(500).json({ error: String(err) });
+    }
   }
 }
