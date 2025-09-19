@@ -1,33 +1,11 @@
 import { useEffect, useState } from "react";
 import styles from "../styles/Home.module.css";
-import liff from "@line/liff";
-import Link from "next/link";
 import Image from "next/image";
-import { Star } from "lucide-react";
 import { useRouter } from "next/router";
-import { sendMessageToWorker } from "../services/line";
 import LoadingOverlay from "react-loading-overlay-ts";
 import { FadeLoader } from "react-spinners";
 import toast, { Toaster } from "react-hot-toast";
-
-// Simple StarIcon component using SVG
-const StarIcon = ({
-  size = 16,
-  className = "",
-}: {
-  size?: number;
-  className?: string;
-}) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 20 20"
-    fill="currentColor"
-    className={className}
-  >
-    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.97a1 1 0 00.95.69h4.175c.969 0 1.371 1.24.588 1.81l-3.38 2.455a1 1 0 00-.364 1.118l1.287 3.97c.3.921-.755 1.688-1.54 1.118l-3.38-2.455a1 1 0 00-1.175 0l-3.38 2.455c-.784.57-1.838-.197-1.539-1.118l1.287-3.97a1 1 0 00-.364-1.118L2.049 9.397c-.783-.57-.38-1.81.588-1.81h4.175a1 1 0 00.95-.69l1.286-3.97z" />
-  </svg>
-);
+import { Calendar } from "lucide-react";
 
 export default function Home() {
   const router = useRouter();
@@ -70,11 +48,10 @@ export default function Home() {
     userId: string;
   } | null>(null);
 
-  // === FORM STATE ===
+  // === FORM REGISTER STATE ===
   const [name, setName] = useState("");
   const [skill, setSkill] = useState("");
   const [location, setLocation] = useState("");
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newWorker = {
@@ -85,11 +62,20 @@ export default function Home() {
       picture: profile.picture,
     };
 
+    setLoading(true);
     await fetch("/api/workers", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(newWorker),
     });
+    setLoading(false);
+
+    // send message to worker
+    await sendMessageToWorker(
+      profile.userId,
+      "คุณได้ลงทะเบียนเป็นช่างเรียบร้อยแล้ว!"
+    );
+    toast.success("Register Worker Success!");
 
     setName("");
     setSkill("");
@@ -99,6 +85,41 @@ export default function Home() {
     const updated = await fetch("/api/workers").then((res) => res.json());
     setWorkers(updated);
     setActiveTab("dashboard");
+  };
+
+  // === FORM ASSIGN STATE ===
+  const [projectName, setProjectName] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [workLocationAssign, setWorkLocationAssign] = useState("");
+  const [budget, setBudget] = useState("");
+
+  const handleSubmitAssignment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const assignment = {
+      projectName,
+      workLocationAssign,
+      startDate,
+      endDate,
+      budget,
+      userId: profile.userId,
+    };
+
+    setLoading(true);
+    await fetch("/api/assign", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(assignment),
+    });
+    setLoading(false);
+
+    toast.success("Assign Worker Success!");
+
+    setProjectName("");
+    setStartDate("");
+    setEndDate("");
+    setWorkLocationAssign("");
+    setBudget("");
   };
 
   async function sendMessageToWorker(userId: string, message: string) {
@@ -112,9 +133,13 @@ export default function Home() {
     toast.success("Send Message Success!");
   }
 
+  // === Assign State ===
+  const [isAssigning, setIsAssigning] = useState(false);
+
   // === Library ===
   const [loading, setLoading] = useState(false);
 
+  // === LIFF connect Line account ===
   // useEffect(() => {
   //   const initLiff = async () => {
   //     try {
@@ -143,7 +168,6 @@ export default function Home() {
     const loadWorkers = async () => {
       try {
         setLoading(true);
-        console.log("loadWorkers");
         const res = await fetch("/api/workers");
         const data = await res.json();
         setWorkers(data);
@@ -151,7 +175,6 @@ export default function Home() {
         console.error("Fetch workers error:", err);
       } finally {
         setLoading(false);
-        console.log("loadWorkers done");
       }
     };
 
@@ -185,19 +208,8 @@ export default function Home() {
           <h1 className="text-3xl font-bold text-blue-700 mb-4">
             AppChang Pro1
           </h1>
-          {/* {profile && (
-          <div className="text-center mb-6">
-            <Image
-              src={profile.picture}
-              alt="profile"
-              width={80}
-              height={80}
-              className="rounded-full mx-auto mb-2"
-              style={{ borderRadius: "50%" }}
-            />
-            <p className="text-lg font-semibold">สวัสดี, {profile.name}</p>
-          </div>
-        )} */}
+
+          {/* Dashboard List */}
           {activeTab === "dashboard" && !selectedWorker && (
             <div style={{ width: "60%" }}>
               <h2 style={{ textAlign: "left" }}>
@@ -232,7 +244,7 @@ export default function Home() {
                       }}
                     >
                       <Image
-                        src={w.picture}
+                        src={w.picture || ""}
                         alt="profile"
                         width={80}
                         height={80}
@@ -436,6 +448,8 @@ export default function Home() {
               </div>
             </div>
           )}
+
+          {/* Register Worker */}
           {activeTab === "worker" && (
             <div
               style={{
@@ -635,7 +649,8 @@ export default function Home() {
             </div>
           )}
 
-          {activeTab === "dashboard" && selectedWorker && (
+          {/* Dashboard Detail */}
+          {activeTab === "dashboard" && selectedWorker && !isAssigning && (
             <div style={{ width: "60%", margin: "0 auto", textAlign: "left" }}>
               <button
                 style={{
@@ -967,6 +982,7 @@ export default function Home() {
                   marginTop: "32px",
                 }}
               >
+                {/* Assign งาน Button */}
                 <button
                   style={{
                     width: "100%",
@@ -981,12 +997,14 @@ export default function Home() {
                     marginBottom: "0",
                   }}
                   onClick={() => {
-                    // TODO: ใส่ logic assign งาน
-                    alert("Assign งานให้ช่างนี้");
+                    // set State
+                    setIsAssigning(true);
                   }}
                 >
                   Assign งานให้ช่างนี้
                 </button>
+
+                {/* Contact Line Button */}
                 <button
                   style={{
                     width: "100%",
@@ -1013,6 +1031,186 @@ export default function Home() {
                   <span style={{ fontSize: "1.3rem" }}>📞</span> ติดต่อทาง LINE
                 </button>
               </div>
+            </div>
+          )}
+
+          {/* Send AssignMent */}
+          {activeTab === "dashboard" && isAssigning && (
+            <div
+              style={{
+                width: "100%",
+                maxWidth: "420px",
+                margin: "32px auto",
+                background: "#fff",
+                borderRadius: "16px",
+                boxShadow: "0 2px 12px #e5e7eb",
+                padding: "32px 24px",
+                textAlign: "left",
+              }}
+            >
+              <button
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#2563eb",
+                  fontWeight: "bold",
+                  fontSize: "1.1rem",
+                  marginBottom: "16px",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
+                }}
+                onClick={() => setIsAssigning(false)}
+              >
+                <span style={{ fontSize: "1.2rem" }}>←</span> กลับ
+              </button>
+              <h2
+                style={{
+                  fontSize: "1.5rem",
+                  fontWeight: "bold",
+                  marginBottom: "24px",
+                }}
+              >
+                Assign งานให้ {selectedWorker?.name}
+              </h2>
+              <form onSubmit={handleSubmitAssignment}>
+                {/* ชื่อ */}
+                <label
+                  style={{
+                    fontWeight: "bold",
+                    marginBottom: "8px",
+                    display: "block",
+                  }}
+                >
+                  ชื่องาน/โครงการ
+                </label>
+
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    background: "#f9fafb",
+                    border: "1px solid #d1d5db",
+                    borderRadius: "10px",
+                    padding: "0 12px",
+                    marginBottom: "18px",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: "1.3rem",
+                      color: "#94a3b8",
+                      marginRight: "8px",
+                    }}
+                  >
+                    👤
+                  </span>
+                  <input
+                    type="text"
+                    placeholder="ชื่องาน/โครงการ"
+                    style={{
+                      border: "none",
+                      background: "transparent",
+                      padding: "14px 0",
+                      width: "100%",
+                      fontSize: "1rem",
+                      outline: "none",
+                    }}
+                    onChange={(e) => setProjectName(e.target.value)}
+                  />
+                </div>
+
+                {/* ทักษะงาน */}
+                <label
+                  style={{
+                    fontWeight: "bold",
+                    marginBottom: "8px",
+                    display: "block",
+                  }}
+                >
+                  วันที่เริ่มงาน
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Calendar size={18} className="text-gray-400" />
+                  </div>
+                  <input
+                    type="date"
+                    id="startDate"
+                    name="startDate"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="w-full pl-10 px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0061A8]"
+                    required
+                  />
+                </div>
+
+                {/* วันที่สิ้นสุดงาน */}
+                <label
+                  style={{
+                    fontWeight: "bold",
+                    marginBottom: "8px",
+                    display: "block",
+                  }}
+                >
+                  พื้นที่ทำงาน
+                </label>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    background: "#f9fafb",
+                    border: "1px solid #d1d5db",
+                    borderRadius: "10px",
+                    padding: "0 12px",
+                    marginBottom: "28px",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: "1.3rem",
+                      color: "#94a3b8",
+                      marginRight: "8px",
+                    }}
+                  >
+                    📍
+                  </span>
+                  <input
+                    type="text"
+                    placeholder="จังหวัด/พื้นที่ที่ทำงาน"
+                    style={{
+                      border: "none",
+                      background: "transparent",
+                      padding: "14px 0",
+                      width: "100%",
+                      fontSize: "1rem",
+                      outline: "none",
+                      color: "#64748b",
+                    }}
+                    onChange={(e) => setLocation(e.target.value)}
+                  />
+                </div>
+
+                {/* ปุ่มบันทึก */}
+                <button
+                  type="submit"
+                  style={{
+                    width: "100%",
+                    background: "linear-gradient(90deg,#2563eb,#1e40af)",
+                    color: "#fff",
+                    fontWeight: "bold",
+                    borderRadius: "10px",
+                    padding: "14px 0",
+                    fontSize: "1.1rem",
+                    border: "none",
+                    cursor: "pointer",
+                    marginTop: "8px",
+                  }}
+                >
+                  บันทึกข้อมูล
+                </button>
+              </form>
             </div>
           )}
 
