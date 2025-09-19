@@ -6,6 +6,7 @@ import LoadingOverlay from "react-loading-overlay-ts";
 import { FadeLoader } from "react-spinners";
 import toast, { Toaster } from "react-hot-toast";
 import { Calendar } from "lucide-react";
+import liff from "@line/liff";
 
 export default function Home() {
   const router = useRouter();
@@ -145,27 +146,27 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
 
   // === LIFF connect Line account ===
-  // useEffect(() => {
-  //   const initLiff = async () => {
-  //     try {
-  //       await liff.init({ liffId: "2008132085-Ex4bOk3P" });
-  //       if (liff.isLoggedIn()) {
-  //         const userProfile = await liff.getProfile();
-  //         console.log("userProfile", userProfile);
-  //         setProfile({
-  //           name: userProfile.displayName,
-  //           picture: userProfile.pictureUrl || "",
-  //           userId: userProfile.userId || "",
-  //         });
-  //       } else {
-  //         liff.login();
-  //       }
-  //     } catch (err) {
-  //       console.error("LIFF init error:", err);
-  //     }
-  //   };
-  //   initLiff();
-  // }, []);
+  useEffect(() => {
+    const initLiff = async () => {
+      try {
+        await liff.init({ liffId: "2008132085-Ex4bOk3P" });
+        if (liff.isLoggedIn()) {
+          const userProfile = await liff.getProfile();
+          console.log("userProfile", userProfile);
+          setProfile({
+            name: userProfile.displayName,
+            picture: userProfile.pictureUrl || "",
+            userId: userProfile.userId || "",
+          });
+        } else {
+          liff.login();
+        }
+      } catch (err) {
+        console.error("LIFF init error:", err);
+      }
+    };
+    initLiff();
+  }, []);
 
   useEffect(() => {
     if (!profile) return;
