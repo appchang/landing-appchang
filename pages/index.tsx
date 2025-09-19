@@ -210,7 +210,7 @@ export default function Home() {
         <Toaster position="top-right" reverseOrder={false} />
         <div className={styles["home-content"]}>
           <h1 className="text-3xl font-bold text-blue-700 mb-4">
-            AppChang Pro1
+            AppChang Pro
           </h1>
 
           {/* Dashboard List */}
