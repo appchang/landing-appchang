@@ -213,6 +213,7 @@ export default function Home() {
                         >
                           {[...Array(4)].map((_, i) => (
                             <svg
+                              key={i}
                               width="16"
                               height="16"
                               viewBox="0 0 16 16"
@@ -647,6 +648,7 @@ export default function Home() {
                   >
                     {[...Array(5)].map((_, i) => (
                       <svg
+                        key={i}
                         width="16"
                         height="16"
                         viewBox="0 0 16 16"
@@ -809,6 +811,7 @@ export default function Home() {
                 </p>
                 {[...Array(4)].map((_, i) => (
                   <svg
+                    key={i}
                     width="16"
                     height="16"
                     viewBox="0 0 16 16"
@@ -862,6 +865,7 @@ export default function Home() {
                 </p>
                 {[...Array(5)].map((_, i) => (
                   <svg
+                    key={i}
                     width="16"
                     height="16"
                     viewBox="0 0 16 16"
