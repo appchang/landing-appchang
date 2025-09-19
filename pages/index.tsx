@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import styles from "../styles/Home.module.css";
 import Image from "next/image";
-import { useRouter } from "next/router";
 import LoadingOverlay from "react-loading-overlay-ts";
 import { FadeLoader } from "react-spinners";
 import toast, { Toaster } from "react-hot-toast";
@@ -9,7 +8,6 @@ import { Calendar } from "lucide-react";
 import liff from "@line/liff";
 
 export default function Home() {
-  const router = useRouter();
   // const [profile, setProfile] = useState<{
   //   name: string;
   //   picture: string;
