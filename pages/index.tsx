@@ -95,27 +95,27 @@ export default function Home() {
     setActiveTab("dashboard");
   };
 
-  // useEffect(() => {
-  //   const initLiff = async () => {
-  //     try {
-  //       await liff.init({ liffId: "2008132085-Ex4bOk3P" });
-  //       if (liff.isLoggedIn()) {
-  //         const userProfile = await liff.getProfile();
-  //         console.log("userProfile", userProfile);
-  //         setProfile({
-  //           name: userProfile.displayName,
-  //           picture: userProfile.pictureUrl || "",
-  //           userId: userProfile.userId || "",
-  //         });
-  //       } else {
-  //         liff.login();
-  //       }
-  //     } catch (err) {
-  //       console.error("LIFF init error:", err);
-  //     }
-  //   };
-  //   initLiff();
-  // }, []);
+  useEffect(() => {
+    const initLiff = async () => {
+      try {
+        await liff.init({ liffId: "2008132085-Ex4bOk3P" });
+        if (liff.isLoggedIn()) {
+          const userProfile = await liff.getProfile();
+          console.log("userProfile", userProfile);
+          setProfile({
+            name: userProfile.displayName,
+            picture: userProfile.pictureUrl || "",
+            userId: userProfile.userId || "",
+          });
+        } else {
+          liff.login();
+        }
+      } catch (err) {
+        console.error("LIFF init error:", err);
+      }
+    };
+    initLiff();
+  }, []);
 
   useEffect(() => {
     if (profile) {
